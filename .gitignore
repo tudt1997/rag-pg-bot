@@ -1,3 +1,6 @@
 ollama_data
 models
 data
+__pycache__
+backend.txt
+frontend.txt

@@ -1,0 +1,1319 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  background-color: #fff;
+  color: #333;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 260px;
+  height: 100%;
+  background-color: #f8f8f8;
+  border-right: 1px solid #e2e2e2;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-260px); 
+  transition: transform 0.3s ease;
+  z-index: 999;
+}
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+/* Chat History */
+.chat-history {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #f8f8f8;
+}
+.chat-item {
+  padding: 14px 20px;
+  border-bottom: 1px solid #e2e2e2;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 15px;
+}
+.chat-item:hover {
+  background-color: #eaeaea;
+}
+.chat-item.active {
+  background-color: #dcdcdc;
+  font-weight: 600;
+}
+
+/* FOOTER SIDEBAR */
+.sidebar-footer {
+  padding: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: #999;
+  border-top: 1px solid #e2e2e2;
+}
+
+/* KEYFRAMES cho .main-content (logo+hamburger di chuyển) */
+@keyframes mainOpen {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(250px); }
+}
+@keyframes mainClose {
+  0% { transform: translateX(250px); }
+  100% { transform: translateX(0); }
+}
+
+/* KEYFRAMES cho .content-inner (hero/footer nẩy) */
+@keyframes contentOpen {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100px); }
+}
+@keyframes contentClose {
+  0% { transform: translateX(-100px); }
+  100% { transform: translateX(0); }
+}
+
+/* MAIN CONTENT */
+.main-content {
+  flex: 1;
+  position: relative;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  transform: translateX(0);
+}
+.main-content.open {
+  animation: mainOpen 0.3s forwards ease;
+}
+.main-content.close {
+  animation: mainClose 0.3s forwards ease;
+}
+
+/* .content-inner: chứa hero và conversation */
+.content-inner {
+  transition: transform 0.4s ease;
+}
+.content-inner.open {
+  animation: contentOpen 0.4s forwards ease;
+}
+.content-inner.close {
+  animation: contentClose 0.4s forwards ease;
+}
+
+/* Nút Hamburger */
+.toggle-sidebar-btn {
+  position: fixed !important;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+}
+
+/* Logo DocEx */
+.main-logo {
+  position: fixed !important ;
+  top: 20px;
+  left: 70px;
+  z-index: 1001;
+}
+.main-logo h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #10a37f;
+}
+
+/* HERO */
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 20px;
+  margin-top: 240px;
+}
+.hero-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* SEARCH */
+.search-container {
+  display: inline-flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  padding: 8px;
+  width: 400px;
+  max-width: 80%;
+  margin: 0 auto 20px;
+}
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 50px;
+}
+.search-btn {
+  margin-left: 4px;
+}
+
+/* QUICK ACTIONS */
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.quick-action {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 50px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  color: #333;
+}
+.quick-action i {
+  margin-right: 6px;
+}
+.quick-action:hover {
+  background-color: #f2f2f2;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  margin-top: auto;
+  color: #999;
+  font-size: 14px;
+  padding: 20px 0;
+}
+
+/* ICON BTN */
+.icon-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+.icon-btn i {
+  font-size: 16px;
+  color: #333;
+}
+.icon-btn:hover {
+  background-color: #f2f2f2;
+}
+
+/* SCROLLBAR CHO SIDEBAR */
+.chat-history::-webkit-scrollbar {
+  width: 8px;
+}
+.chat-history::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+/* NEW CHAT BUTTON */
+.new-chat-btn {
+  width: auto;
+  height: auto;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center; 
+  gap: 6px;
+  background-color: #10a37f;
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.new-chat-btn i {
+  color: #fff;
+  font-size: 16px;
+}
+.new-chat-btn span {
+  font-size: 14px;
+}
+.new-chat-btn:hover {
+  background-color: #0b7d66;
+}
+
+/* CONVERSATION AREA */
+.conversation-container {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 0 20px;
+  padding-bottom: 80px; /* Thêm khoảng cách dưới, đảm bảo không bị che bởi chat-input-container */
+}
+
+/* Tin nhắn */
+.message {
+  margin: 12px 0;
+  line-height: 1.4;
+  font-size: 15px;
+}
+
+/* Các tin nhắn riêng: user và bot */
+.user-message {
+  text-align: right;
+  color: #333;
+  font-weight: 500;
+}
+.bot-message {
+  text-align: left;
+  color: #444;
+}
+/* Ô nhập chat luôn dính ở đáy, căn giữa theo chiều ngang */
+.chat-input-container {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  background-color: #fff;
+  border-top: 1px solid #e2e2e2;
+  padding: 10px 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  z-index: 100; /* Đảm bảo nằm trên các nội dung khác */
+}
+
+/* Ô textarea nhập chat */
+.chat-input {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  padding: 8px 12px;
+  font-size: 14px;
+  outline: none;
+  resize: vertical;      /* Cho phép kéo thay đổi chiều cao theo nội dung */
+  min-height: 40px;       /* Chiều cao tối thiểu */
+  max-height: 150px;      /* Chiều cao tối đa trước khi xuất hiện thanh cuộn */
+  overflow-y: auto;
+}
+
+/* Nút gửi chat */
+.chat-send-btn {
+  background-color: #10a37f;
+  color: #fff;
+  border-radius: 50%;
+  padding: 8px;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+}
+.chat-send-btn:hover {
+  background-color: #0b7d66;
+}
+
+/* Ô nhập chat luôn dính ở đáy, căn giữa theo chiều ngang */
+.chat-input-container {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  background-color: #fff;
+  border-top: 1px solid #e2e2e2;
+  padding: 10px 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  z-index: 100; /* Đảm bảo nằm trên các nội dung khác */
+  /* Nếu muốn dùng transition thay cho keyframes, bạn có thể uncomment dòng dưới */
+  /* transition: transform 0.4s ease; */
+}
+
+/* Keyframes cho chat-input-container khi mở sidebar */
+@keyframes chatInputOpen {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(calc(-50% + 150px));
+  }
+}
+
+/* Keyframes cho chat-input-container khi đóng sidebar */
+@keyframes chatInputClose {
+  0% {
+    transform: translateX(calc(-50% + 150px));
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Áp dụng animation khi toggle */
+.chat-input-container.open {
+  animation: chatInputOpen 0.3s forwards ease;
+}
+
+.chat-input-container.close {
+  animation: chatInputClose 0.3s forwards ease;
+}
+
+/* Các định nghĩa CSS khác giữ nguyên như cũ ... */
+
+/* ========== RESET CƠ BẢN ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  background-color: #fff;
+  color: #333;
+}
+
+/* .app container */
+.app {
+  display: flex;
+  height: 100vh;
+  /* overflow: hidden; */
+}
+
+/* SIDEBAR (overlay) */
+.sidebar {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 260px;
+  height: 100%;
+  background-color: #f8f8f8;
+  border-right: 1px solid #e2e2e2;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-260px); /* default: đóng */
+  transition: transform 0.3s ease;
+  z-index: 999;
+}
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* HEADER SIDEBAR */
+.sidebar-header {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+/* Chat History */
+.chat-history {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #f8f8f8;
+}
+.chat-item {
+  padding: 14px 20px;
+  border-bottom: 1px solid #e2e2e2;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 15px;
+}
+.chat-item:hover {
+  background-color: #eaeaea;
+}
+.chat-item.active {
+  background-color: #dcdcdc;
+  font-weight: 600;
+}
+
+/* FOOTER SIDEBAR */
+.sidebar-footer {
+  padding: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: #999;
+  border-top: 1px solid #e2e2e2;
+}
+
+/* KEYFRAMES cho .main-content (logo+hamburger di chuyển) */
+@keyframes mainOpen {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(250px); }
+}
+@keyframes mainClose {
+  0% { transform: translateX(250px); }
+  100% { transform: translateX(0); }
+}
+
+/* KEYFRAMES cho .content-inner (hero/footer nẩy) */
+@keyframes contentOpen {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100px); }
+}
+@keyframes contentClose {
+  0% { transform: translateX(-100px); }
+  100% { transform: translateX(0); }
+}
+
+/* MAIN CONTENT */
+.main-content {
+  flex: 1;
+  position: relative;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  transform: translateX(0);
+}
+.main-content.open {
+  animation: mainOpen 0.3s forwards ease;
+}
+.main-content.close {
+  animation: mainClose 0.3s forwards ease;
+}
+
+/* .content-inner: chứa hero và conversation */
+.content-inner {
+  transition: transform 0.4s ease;
+}
+.content-inner.open {
+  animation: contentOpen 0.4s forwards ease;
+}
+.content-inner.close {
+  animation: contentClose 0.4s forwards ease;
+}
+
+/* Nút Hamburger */
+.toggle-sidebar-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+}
+
+/* Logo DocEx */
+.main-logo {
+  position: fixed;
+  top: 20px;
+  left: 70px;
+  z-index: 1001;
+}
+.main-logo h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #10a37f;
+}
+
+/* HERO */
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 20px;
+  margin-top: 240px;
+}
+.hero-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* SEARCH */
+.search-container {
+  display: inline-flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  padding: 8px;
+  width: 400px;
+  max-width: 80%;
+  margin: 0 auto 20px;
+}
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 50px;
+}
+.search-btn {
+  margin-left: 4px;
+}
+
+/* QUICK ACTIONS */
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.quick-action {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 50px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  color: #333;
+}
+.quick-action i {
+  margin-right: 6px;
+}
+.quick-action:hover {
+  background-color: #f2f2f2;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  margin-top: auto;
+  color: #999;
+  font-size: 14px;
+  padding: 20px 0;
+}
+
+/* ICON BTN */
+.icon-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+.icon-btn i {
+  font-size: 16px;
+  color: #333;
+}
+.icon-btn:hover {
+  background-color: #f2f2f2;
+}
+
+/* SCROLLBAR CHO SIDEBAR */
+.chat-history::-webkit-scrollbar {
+  width: 8px;
+}
+.chat-history::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+/* NEW CHAT BUTTON */
+.new-chat-btn {
+  width: auto;
+  height: auto;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center; 
+  gap: 6px;
+  background-color: #10a37f;
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.new-chat-btn i {
+  color: #fff;
+  font-size: 16px;
+}
+.new-chat-btn span {
+  font-size: 14px;
+}
+.new-chat-btn:hover {
+  background-color: #0b7d66;
+}
+
+/* CONVERSATION AREA */
+.conversation-container {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 0 20px;
+  padding-bottom: 80px; /* Thêm khoảng cách dưới, đảm bảo không bị che bởi chat-input-container */
+}
+
+/* Tin nhắn */
+.message {
+  margin: 12px 0;
+  line-height: 1.4;
+  font-size: 15px;
+  word-wrap: break-word;
+}
+
+/* Các tin nhắn riêng: user và bot */
+.user-message {
+  text-align: right;
+  color: #333;
+  font-weight: 500;
+}
+.bot-message {
+  text-align: left;
+  color: #444;
+}
+/* CONVERSATION AREA */
+.conversation-container {
+  max-width: 1000px;         /* Tăng kích thước từ 600px lên 800px */
+  margin: 100px auto 30px;
+  padding: 0 30px;          /* Tăng padding ngang */
+  padding-bottom: 100px;    /* Tăng khoảng cách dưới */
+}
+
+/* Chat input container */
+.chat-input-container {
+  position: fixed;
+  bottom: 0 ;
+  margin: 20px auto;
+  width: 100%;
+  max-width: 1000px;         /* Tăng kích thước tương tự hộp hội thoại */
+  background-color: #fff;
+  border-top: 1px solid #e2e2e2;
+  padding: 15px 30px;       /* Tăng padding để ô chat lớn hơn */
+  padding-bottom: 10;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin: 0 !important;
+  /* Nếu dùng cho animation, giữ lại các class open/close để áp dụng keyframes */
+}
+
+.chat-input {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  padding: 8px 12px;
+  font-size: 14px;
+  outline: none;
+  resize: none;         /* Tắt resize thủ công */
+  min-height: 40px;      /* Chiều cao tối thiểu */
+  overflow-y: hidden;    /* Ẩn thanh cuộn dọc */
+  margin-bottom: 40px;
+}
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.loading-blink {
+  animation: blink 1s infinite;
+}
+
+.message {
+  white-space: pre-wrap;
+}
+
+.bot-message-content h1 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.bot-message-content p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.bot-message-content pre {
+  background: #282c34;
+  color: #f8f8f2;
+  padding: 10px;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.bot-message-content code {
+  background: #f4f4f4;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+
+
+
+.toggle-sidebar-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+}
+.main-logo {
+  position: fixed;
+  top: 20px;
+  left: 70px;
+  z-index: 1001;
+}
+
+/* ===== OVERWRITE FIX: Cố định Hamburger và Logo trên cùng, không bị cuộn ===== */
+.app {
+  height: auto !important;
+  overflow: visible !important;
+}
+.main-content {
+  overflow-y: visible !important;
+  
+}
+.toggle-sidebar-btn,
+.main-logo {
+  position: fixed !important;
+  top: 20px !important;
+  z-index: 9999 !important;
+}
+.toggle-sidebar-btn {
+  left: 20px !important;
+}
+.main-logo {
+  left: 70px !important;
+}
+
+.conversation-container {
+  max-height: 600px; /* Điều chỉnh theo ý muốn */
+  overflow-y: auto;
+}
+
+.main-content {
+  overflow-x: hidden !important;
+}
+
+html, body {
+  overflow-x: hidden !important;
+}
+
+html, body {
+  overflow-y: hidden;
+}
+.conversation-container {
+  overflow-y: auto;
+}
+
+@keyframes blinkSidebar {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.chat-item.loading::after {
+  content: " ●";
+  margin-left: 6px;
+  animation: blinkSidebar 1s infinite;
+  color: #10a37f;
+}
+
+.chat-item.done::after {
+  content: " ✓";
+  margin-left: 6px;
+  color: #10a37f;
+  animation: none;
+}
+
+.chat-item {
+  position: relative;
+}
+.chat-item .delete-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #999;
+}
+.chat-item .delete-btn:hover {
+  color: #e00;
+}
+.chat-item .chat-title {
+  display: inline-block;
+  width: calc(100% - 24px);
+}
+.chat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e2e2e2;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 15px;
+  position: relative;
+}
+
+.chat-title {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: #999;
+  font-size: 18px;
+  cursor: pointer;
+  margin-left: 12px; /* thêm khoảng cách giữa text và nút xoá */
+}
+
+.delete-btn:hover {
+  color: #ff4d4f;
+}
+
+.chat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  font-size: 15px;
+  border-bottom: 1px solid #e2e2e2;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+.chat-item:hover {
+  background-color: #eaeaea;
+}
+.chat-item.active {
+  background-color: #dcdcdc;
+  font-weight: 600;
+}
+.chat-item.loading::after {
+  content: " ●";
+  margin-left: 6px;
+  animation: blinkSidebar 1s infinite;
+  color: #10a37f;
+}
+.chat-item.done::after {
+  content: " ✓";
+  margin-left: 6px;
+  color: #10a37f;
+  animation: none;
+}
+
+.chat-title {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: #999;
+  font-size: 18px;
+  cursor: pointer;
+  margin-left: 12px;
+}
+.delete-btn:hover {
+  color: #ff4d4f;
+}
+
+.chat-item.loading::after {
+  content: " ●";
+  margin-left: 6px;
+  margin-right: 32px; /* thêm dòng này */
+  animation: blinkSidebar 1s infinite;
+  color: #10a37f;
+}
+
+.chat-item.done::after {
+  content: " ✓";
+  margin-left: 6px;
+  margin-right: 32px; /* thêm dòng này */
+  color: #10a37f;
+  animation: none;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 50px;
+  resize: none; /* Không cho resize kéo to nhỏ */
+  overflow-y: auto;
+  min-height: 40px;
+  max-height: 150px;
+}
+
+.search-container {
+  display: inline-flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  padding: 8px;
+  width: 400px;
+  max-width: 80%;
+  margin: 0 auto 20px;
+  overflow: hidden;  
+}
+
+.upload-doc-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 999999; 
+}
+
+.upload-doc-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #10a37f;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 9999999;
+}
+
+.upload-doc-btn:hover {
+  background-color: #0b7d66;
+}
+
+.upload-popup {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  width: 500px;
+  height: 0;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  border-radius: 8px;
+  transition: height 0.3s ease;
+  z-index: 9999999;
+  pointer-events: auto;
+}
+
+.upload-popup.open {
+  width: 500px;
+  height: 500px;
+}
+
+.upload-popup-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  pointer-events: auto;
+}
+
+.upload-popup-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.upload-confirm-btn {
+  width: 92%;
+  background-color: #10a37f;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  position: absolute; 
+  bottom: 20px; 
+  cursor: pointer;
+}
+
+.upload-confirm-btn:hover {
+  background-color: #0b7d66;
+}
+
+.drop-area {
+  flex: 1;
+  border: 2px dashed #10a37f;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #10a37f;
+  font-size: 16px;
+  min-height: 150px; 
+  max-height: 350px; 
+  cursor: pointer;
+  padding: 20px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.drop-area.dragover {
+  background-color: #e6f7f2;
+  border-color: #0b7d66;
+}
+
+.file-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-name {
+  flex: 1;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.file-custom-name {
+  flex: 2;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.delete-file-btn {
+  background: #ff4d4f;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.delete-file-btn:hover {
+  background: #d9363e;
+}
+
+#uploadContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#uploadView {
+  display: flex;
+  flex-direction: column;
+  height: 100%; 
+}
+
+.add-more-btn {
+  padding: 8px 12px;
+  background-color: #f0f0f0;
+  color: #10a37f;
+  border: 2px dashed #10a37f;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+  
+  width: 50%;              
+  margin: 20px auto 0;     
+  display: block;        
+  text-align: center;
+}
+
+.add-more-btn:hover {
+  background-color: #e6f7f2;
+  border-color: #0b7d66;
+  color: #0b7d66;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.view-history-btn {
+  background-color: transparent;
+  border: none;
+  color: #10a37f;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+}
+
+.view-history-btn:hover {
+  text-decoration: underline;
+}
+#viewHistoryBtn {
+  margin-left: 10px;
+  font-size: 14px; 
+  background: none;
+  border: none;
+  color: #10a37f;
+  cursor: pointer;
+}
+
+.search-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background-color: #fff;
+  border: 1px solid #bdbdbd;
+  border-radius: 50px;
+  padding: 8px;
+  width: 600px;
+  height: 100px;
+  max-width: 80%;
+  margin: 0 auto 20px;
+  position: relative;  /* Để căn icon não */
+}
+
+.search-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 18px 28px;
+  font-size: 16px;
+  border-radius: 50px;
+}
+
+.search-btn {
+  margin-left: 4px;
+}
+
+.search-actions {
+  position: absolute;
+  bottom: 12px;    
+  left: 30px;    
+}
+
+.search-actions .thinking-icon-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;               
+  padding: 5px 12px;      
+  border: 1px solid #ddd;
+  background-color: transparent;
+  color: #000;
+  font-size: 16px;
+  border-radius: 20px;    
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.search-actions .thinking-icon-btn span {
+  display: inline-block;
+  font-size: 14px;
+}
+
+.search-actions .thinking-icon-btn:hover {
+  background-color:rgb(219, 219, 219);
+  transform: scale(1.05);
+}
+
+.thinking-icon-btn.active {
+  background-color:rgb(176, 176, 176);
+  color: black;
+  border-color:rgb(190, 190, 190);
+  transform: scale(1.05);
+}
+.bot-message {
+  text-align: left; 
+}
+
+.bot-message details {
+  display: block;
+}
+
+.bot-message summary {
+  display: inline-flex;
+  text-align: left;
+  cursor: pointer;
+  color: #10a37f;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Loại bỏ margin mặc định của p và pre trong bot-message */
+.bot-message p,
+.bot-message pre {
+  margin: 0;
+  padding: 0;
+}
+
+/* Loại bỏ khoảng cách extra của details/summary */
+.bot-message details {
+  margin: 0;
+  padding: 0;
+}
+.bot-message summary {
+  /* nếu bạn muốn summary xuống dòng riêng */
+  display: block;
+  margin: 0 0 4px;  /* 4px dưới summary */
+}
+
+/* đặt ở cuối file CSS để override */
+.message {
+  margin-top: 0 !important;
+  margin-bottom: 12px !important;
+}

@@ -1,45 +1,184 @@
-from flask import Flask, request, jsonify, Response
+import os
+import json
+import time
+from datetime import datetime
+from flask import Flask, request, Response, stream_with_context, jsonify
+from rag_system.components.llm_response.generate_response import LLMResponseGenerator
 from flask_cors import CORS
-from services.text_qa import generate_answer
-from typing import Union, Dict, Any
+from rag_system.services.vector_store import VectorStore
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
+# Create index if haven't exist
+vector_store = VectorStore()
+vector_store.create_index()
 
-@app.route('/generate_response', methods=['POST'])
-def generate_response() -> Union[Response, tuple[Response, int]]:
-    """
-    Generate a response based on the user's query using a RAG (Retrieval-Augmented Generation) approach.
+DATA_FILE = 'sessions/conversations.json'
+# ensure the sessions directory exists
+os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
 
-    Expected JSON payload:
-    {
-        "index_name": str,  # Optional. Default: "text_embeddings"
-        "user_query": str   # Required. The user's question
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+UPLOAD_FOLDER = 'uploads'
+HISTORY_FILE = 'sessions/uploads_history.json'
+
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Load existing conversations from disk, or start with empty dict
+if os.path.exists(DATA_FILE):
+    with open(DATA_FILE, 'r', encoding='utf-8') as f:
+        stored = json.load(f)
+    order = stored.get('order', list(stored.get('conversations', {}).keys()))
+    conversations = stored.get('conversations', {})
+else:
+    order = []
+    conversations = {}
+
+def save_conversations():
+    data = {
+        'order': order,
+        'conversations': conversations
+    }
+    with open(DATA_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+searcher = LLMResponseGenerator()
+
+@app.route('/conversations/reorder', methods=['POST'])
+def reorder():
+    data = request.get_json()
+    conv_id = data.get('id')
+    if conv_id in order:
+        order.remove(conv_id)
+    order.insert(0, conv_id)
+    save_conversations()
+    return jsonify({'success': True})
+
+@app.route('/conversations', methods=['GET'])
+def list_conversations():
+    return jsonify([
+        {'id': cid, 'title': conversations[cid]['title']}
+        for cid in order if cid in conversations
+    ])
+
+@app.route('/conversation', methods=['POST'])
+def create_conversation():
+    """Start a new conversation and return its ID and title."""
+    data = request.get_json()
+    title = data.get('title') or f"Conversation {len(conversations) + 1}"
+    conv_id = str(int(time.time() * 1000))
+    conversations[conv_id] = {'title': title, 'messages': []}
+    save_conversations()
+    return jsonify({'id': conv_id, 'title': title})
+
+@app.route('/conversation/<conv_id>', methods=['GET'])
+def get_conversation(conv_id):
+    """Fetch all messages for a given conversation."""
+    conv = conversations.get(conv_id)
+    if not conv:
+        return jsonify({'error': 'Conversation not found'}), 404
+    return jsonify(conv)
+
+@app.route('/conversation/<conv_id>/message', methods=['POST'])
+def stream_message(conv_id):
+    data = request.get_json()
+    user_msg = data.get('message')
+    index_name = data.get('index_name', 'text_embeddings')
+    enable_thinking = data.get('enable_thinking', False)   # << thêm dòng này
+
+    if not user_msg:
+        return jsonify({'error': 'message is required'}), 400
+
+    conv = conversations.get(conv_id)
+    if not conv:
+        return jsonify({'error': 'Conversation not found'}), 404
+
+    def generate():
+        full_reply = ""
+        for chunk in searcher.generate_response(index_name, user_msg, conv['messages'], enable_thinking=enable_thinking):
+            full_reply += chunk
+            yield chunk
+        save_conversations()
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype='text/plain; charset=utf-8'
+    )
+
+@app.route('/conversation/<conv_id>', methods=['DELETE'])
+def delete_conversation(conv_id):
+    if conv_id not in conversations:
+        return jsonify({'error': 'Conversation not found'}), 404
+    del conversations[conv_id]
+    if conv_id in order:
+        order.remove(conv_id)
+    save_conversations()
+    return jsonify({'success': True})
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    original_filename = file.filename
+
+    # Get the document name provided by the user
+    user_given_name = request.form.get('name')
+    if not user_given_name:
+        return jsonify({'error': 'Document name is required.'}), 400
+
+    filename = user_given_name + '.pdf'
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(file_path)
+
+    # Save upload history
+    history_entry = {
+        "file_name": original_filename,
+        "user_given_name": user_given_name,
+        "upload_time": datetime.now().isoformat()
     }
 
-    Returns:
-        Union[Response, tuple[Response, int]]: JSON response containing either:
-            - Success: {"response": str} with status code 200
-            - Error: {"error": str} with status code 400 or 500
-    """
-    try:
-        data: Dict[str, Any] = request.get_json()
-        index_name: str = data.get("index_name", "text_embeddings")
-        user_query: str = data.get("user_query")
+    if os.path.exists(HISTORY_FILE):
+        with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
+            history_data = json.load(f)
+    else:
+        history_data = []
 
-        if not user_query:
-            return jsonify({"error": "user_query is required"}), 400
+    history_data.append(history_entry)
 
-        answer: str = generate_answer(user_query, k=3, index_name=index_name)
+    with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
+        json.dump(history_data, f, ensure_ascii=False, indent=2)
 
-        return jsonify({
-            "response": answer
-        })
+    # === Perform OCR -> Chunking -> Embedding (giữ nguyên phần này) ===
+    from rag_system.components.loaders.local_loader import LocalOCRPDFLoader
+    from rag_system.components.chunkers.fixed_size_chunker import LangchainCompatibleChunker
+    from rag_system.components.embedders.embedder import Embedder
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    loader = LocalOCRPDFLoader()
+    data_chunks_by_page = loader.load(file_path)
 
+    chunker = LangchainCompatibleChunker()
+    chunked_data = chunker.chunk(data_chunks_by_page)
+
+    embedder = Embedder(index_name="text_embeddings")
+    embedder.embed_and_load(chunked_data)
+
+    return jsonify({'message': f'Successfully uploaded and embedded file: {original_filename}'})
+
+@app.route('/upload/history', methods=['GET'])
+def get_upload_history():
+    if os.path.exists(HISTORY_FILE):
+        with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
+            history_data = json.load(f)
+    else:
+        history_data = []
+    return jsonify(history_data)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)

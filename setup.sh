@@ -11,7 +11,7 @@ docker run --rm --name elasticsearch \
   -e http.cors.allow-credentials=true \
   -e network.publish_host=localhost \
   -e xpack.security.enabled=false \
-  -v %cd%/data:/usr/share/elasticsearch/data \
+  -v ./data:/usr/share/elasticsearch/data \
   docker.elastic.co/elasticsearch/elasticsearch:8.15.1
 
 docker run -d \
@@ -21,8 +21,8 @@ docker run -d \
   --name ollama \
   ollama/ollama
 
-docker exec -it ollama ollama pull bge-m3
-docker exec -it ollama ollama pull llama3.2:1b
+docker exec -it ollama ollama pull qwen2.5:3b
+docker exec -it ollama ollama pull qwen2.5:3b-instruct
 
 export ELASTIC_HOST=localhost
 export ELASTIC_PORT=9200

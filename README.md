@@ -1,152 +1,65 @@
-# RAG FeinGiang Bot
-
-RAG bot using Elasticsearch and Ollama for document search and question answering.
+# RAG Pg Bot - Release 0.0.1
 
 ## Prerequisites
+- Ensure **Docker** is installed and running.
+- You can download Docker here: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 
-- Docker and Docker Compose
-- Python 3.8+ (for local development)
+## Setup Instructions
 
-## Quick Start
+### Step 1: Run Docker Setup Script
 
-### Using Docker Compose (Recommended)
+First, make sure Docker is running.
 
-You can choose to run `run.sh` on your Linux machine
-
-```bash
-sh ./run.sh
-```
-
-or If you're not using Linux, try `docker compose` instead
+Then execute the following command:
 
 ```bash
-# Both platform Windows and Linux
-docker compose build app
-docker compose up -d
+sh setup.sh
 ```
 
-### Local Development
-1. Set environment variables:
+This script will:
+- Start **Elasticsearch** on port 9200
+- Start **Ollama** on port 11434
+- Pull the models: `qwen2.5:3b` and `qwen2.5:3b-instruct`
+
+### Step 2: Install Python Dependencies
+
 ```bash
-# Linux/Mac
-export ELASTIC_HOST=localhost
-export ELASTIC_PORT=9200
-
-# Windows PowerShell
-$env:ELASTIC_HOST="localhost"
-$env:ELASTIC_PORT="9200"
+pip install -r requirements.txt
 ```
 
-2. Run setup script:
+## Launch the Application
+
+### Step 3: Start Backend and Frontend
+
 ```bash
-# Linux/Mac
-./setup.sh
-
-# Windows
-.\setup.ps1
+sh start_all.sh
 ```
 
-## Usage Example
-```python
-from services.text_qa import generate_answer
+- The backend will run on port 5001 and log to `backend.txt`.
+- The frontend will run on port 3000 and log to `frontend.txt`.
 
-question = "Your question here"
-answer = generate_answer(question)
-print(answer)
+## Verify the Application
+
+- Backend API: [http://localhost:5001](http://localhost:5001)
+- Frontend UI: [http://localhost:3000](http://localhost:3000)
+
+## Stopping the Application
+
+Stop the Docker containers:
+
+```bash
+docker stop elasticsearch ollama
 ```
 
-## Components
-- Elasticsearch: Vector database
-- Ollama (bge-m3, llama3.2:1b): Embeddings and text generation
-- Python packages: elasticsearch, ollama, sentence-transformers
+Stop the backend and frontend processes:
 
-## Project Structure
-
-```
-rag-pg-bot/
-├── services/
-│   └── text_qa.py  ..,    # Main QA service implementation
-├── README.md
+```bash
+pkill -f app.py
+pkill -f load_script.py
 ```
 
-## Running the Project
+## Notes
 
-1. Ensure Elasticsearch is running:
-   ```bash
-   docker ps  # Should show elasticsearch container running
-   ```
-
-2. Ensure Ollama service is running:
-   ```bash
-   ollama serve  # Run in a separate terminal
-   ```
-
-3. Index your documents (if not already done):
-   ```python
-   # Example code to index documents will be provided in scripts/
-   ```
-
-4. Use the QA service:
-   ```python
-   from services.text_qa import generate_answer
-   
-   question = "Your question here"
-   answer = generate_answer(question)
-   print(answer)
-   ```
-
-## Setup Requirements
-
-1. Elasticsearch running on `http://localhost:9200`
-2. Ollama with the following models:
-   - bge-m3 (for embeddings)
-   - llama3.2:1b (for text generation)
-3. Python packages:
-   ```
-   elasticsearch
-   ollama
-   sentence-transformers
-   numpy
-   ```
-
-## Main Features
-
-### Vector Search
-- Uses cosine similarity for semantic search
-- Generates embeddings using bge-m3 model
-- Returns top-k most relevant documents
-
-### Answer Generation
-- Retrieves relevant documents using vector search
-- Constructs a prompt with context from retrieved documents
-- Generates human-friendly answers using llama3.2
-
-## Configuration
-
-- Default vector search returns top 3 documents
-- Uses 'text_embeddings' as default Elasticsearch index
-- Embeddings are generated using the bge-m3 model
-- Text generation uses llama3.2:1b model
-- Default Elasticsearch connection: `http://localhost:9200`
-- Default index name: `text_embeddings`
-- Vector search parameters:
-  - Top-k results: 3 (configurable)
-  - Embedding model: bge-m3
-  - Text generation model: llama3.2:1b
-
-## Troubleshooting
-
-1. If Elasticsearch fails to start, check:
-   - Docker is running
-   - Port 9200 is not in use
-   - System has enough memory (minimum 4GB recommended)
-
-2. If Ollama fails:
-   - Ensure the service is running (`ollama serve`)
-   - Check if models are properly downloaded
-   - Verify system has enough GPU/CPU resources
-
-## License
-
-[Fein Corp]
+- Ensure ports 9200, 11434, 5001, and 3000 are available.
+- Always verify Docker is running before executing the scripts.
 

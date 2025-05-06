@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Document Extractor</title>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    integrity="sha512-..."
+    crossorigin="anonymous"
+  />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  <style>
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    .loading-blink {
+      animation: blink 1s infinite;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+</head>
+<body>
+  <div class="upload-doc-layer">
+    <button id="uploadDocBtn" class="upload-doc-btn" title="Tải tài liệu">
+      <i class="fas fa-upload"></i> <span>Tải tài liệu</span>
+    </button>
+  
+    <div id="uploadPopup" class="upload-popup">
+      <div class="upload-popup-content">
+        <button id="closeUploadPopup" class="upload-popup-close">&times;</button>
+        <div class="popup-header">
+          <h2>
+            Tải tài liệu của bạn
+            <button id="viewHistoryBtn">Xem lịch sử</button>
+          </h2>
+        </div>
+    
+        <!-- Upload view -->
+        <div id="uploadView">
+          <div id="uploadContainer">
+            <div id="dropArea" class="drop-area">
+              <p id="dropAreaText">Kéo dữ liệu vào đây</p>
+              <input type="file" id="fileInput" multiple hidden />
+            </div>
+            <div id="fileList" class="file-list" style="display: none;"></div>
+          </div>
+          <button id="uploadButton" class="upload-confirm-btn">Upload</button>
+          <div class="upload-status" id="uploadStatus"></div>
+        </div>
+    
+        <!-- History view -->
+        <div id="historyView" style="display: none;">
+          <button id="backToUploadBtn" class="upload-confirm-btn" >Quay lại</button>
+          <div id="uploadedHistory" class="uploaded-history"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="app">
+    <aside class="sidebar open" id="sidebar">
+      <div class="sidebar-header">
+        <button class="new-chat-btn icon-btn" title="New Chat">
+          <i class="fas fa-pencil-alt"></i>
+          <span>Cuộc trò chuyện mới</span>
+        </button>
+      </div>
+      <nav class="chat-history">
+      </nav>
+      <div class="sidebar-footer">
+        <p>© 2025 VCB</p>
+      </div>
+    </aside>
+    <main class="main-content open" id="mainContent">
+      <button
+        class="toggle-sidebar-btn icon-btn"
+        onclick="toggleSidebar()"
+        title="Toggle Sidebar"
+      >
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="main-logo">
+        <h1>DocEx</h1>
+      </div>
+      <div class="content-inner open" id="contentInner">
+        <div class="hero" id="heroSection">
+          <h2 class="hero-title">Bạn cần tìm thông tin gì, tôi sẽ giúp bạn!</h2>
+          <div class="search-container">
+            <div class="search-row">
+                <textarea type="text" class="search-input" placeholder="Type here"></textarea>
+                <button class="search-btn icon-btn" title="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        
+            <div class="search-actions">
+                <button id="thinkingModeHeroBtn" class="thinking-icon-btn" title="Thinking Mode">
+                    <i class="fas fa-brain"></i>
+                    <span>Thinking Mode</span>
+                </button>
+            </div>
+          </div>
+          <footer class="footer">
+            <p>DocEx - Made by Fein</p>
+          </footer>
+        </div>
+        <div class="conversation-container" id="conversationContainer" style="display: none;">
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="chat-input-container" style="display: none;">
+    <textarea class="chat-input" placeholder="Nhập câu hỏi của bạn..."></textarea>
+    <button class="chat-send-btn icon-btn" title="Send">
+      <i class="fas fa-paper-plane"></i>
+    </button>
+    <div class="search-actions">
+      <button id="thinkingModeChatBtn" class="thinking-icon-btn" title="Thinking Mode">
+          <i class="fas fa-brain"></i>
+          <span>Thinking Mode</span>
+      </button>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
