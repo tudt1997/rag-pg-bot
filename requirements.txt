@@ -1,4 +1,4 @@
-elasticsearch
+elasticsearch==8.12.1
 ollama
 numpy
 flask
@@ -9,3 +9,4 @@ pytesseract
 Pillow
 pdf2image
 sentence_transformers
+langchain-commuinity
