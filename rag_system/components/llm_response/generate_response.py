@@ -89,5 +89,5 @@ class LLMResponseGenerator:
                 yield msg.content
 
         # 5) Update history
-        chat_history.append({"role": "user",    "content": user_query})
+        chat_history.append({"role": "user", "content": user_query})
         chat_history.append({"role": "assistant", "content": full_reply})

@@ -15,8 +15,8 @@ docker run --rm --name elasticsearch \
   docker.elastic.co/elasticsearch/elasticsearch:8.15.1
 
 docker run -d \
-  -v /home/azureuser/llm/models:/models \
-  -v /home/azureuser/llm/ollama_data:/root/.ollama \
+  -v ./llm/models:/models \
+  -v ./llm/ollama_data:/root/.ollama \
   -p 11434:11434 \
   --name ollama \
   ollama/ollama

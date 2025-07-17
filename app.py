@@ -133,7 +133,13 @@ def upload_file():
     if not user_given_name:
         return jsonify({'error': 'Document name is required.'}), 400
 
-    filename = user_given_name + '.pdf'
+    # Determine file type and save with appropriate extension
+    file_extension = os.path.splitext(original_filename)[1].lower()
+    if file_extension == '.zip':
+        filename = user_given_name + '.zip'
+    else:
+        filename = user_given_name + '.pdf'  # Default to PDF for other files
+    
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(file_path)
 
@@ -155,18 +161,26 @@ def upload_file():
     with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
         json.dump(history_data, f, ensure_ascii=False, indent=2)
 
-    # === Perform OCR -> Chunking -> Embedding (giữ nguyên phần này) ===
-    from rag_system.components.loaders.local_loader import LocalOCRPDFLoader
+    # Process the file based on its type
     from rag_system.components.chunkers.fixed_size_chunker import LangchainCompatibleChunker
     from rag_system.components.embedders.embedder import Embedder
 
-    loader = LocalOCRPDFLoader()
-    data_chunks_by_page = loader.load(file_path)
-
     chunker = LangchainCompatibleChunker()
-    chunked_data = chunker.chunk(data_chunks_by_page)
-
     embedder = Embedder(index_name="text_embeddings")
+
+    if file_extension == '.zip':
+        # Handle zip file with markdown content
+        from rag_system.components.loaders.zip_loader import ZipMarkdownLoader
+        loader = ZipMarkdownLoader()
+        data_chunks = loader.load(file_path)
+    else:
+        # Handle PDF files (existing functionality)
+        from rag_system.components.loaders.local_loader import LocalOCRPDFLoader
+        loader = LocalOCRPDFLoader()
+        data_chunks = loader.load(file_path)
+
+    # Chunk and embed the data
+    chunked_data = chunker.chunk(data_chunks)
     embedder.embed_and_load(chunked_data)
 
     return jsonify({'message': f'Successfully uploaded and embedded file: {original_filename}'})
