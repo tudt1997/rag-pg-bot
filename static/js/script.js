@@ -1,4 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // === Configuration ===
+  const CONFIG = {
+    // API configuration
+    api: {
+      protocol: 'http',
+      host: window.location.hostname || 'localhost', // Use current hostname or default to localhost
+      port: '5001',
+      get baseUrl() {
+        return `${this.protocol}://${this.host}:${this.port}`;
+      }
+    }
+  };
+  
+  // For debugging
+  console.log(`Using API endpoint: ${CONFIG.api.baseUrl}`);
+  
   const thinkingBtnHero = document.getElementById('thinkingModeHeroBtn');
   const thinkingBtnChat = document.getElementById('thinkingModeChatBtn');
   let thinkingNewDefault = false;
@@ -59,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   async function loadUploadHistory() {
-    const res = await fetch('http://localhost:5001/upload/history');
+    const res = await fetch(`${CONFIG.api.baseUrl}/upload/history`);
     const history = await res.json();
   
     const uploadedHistory = document.getElementById('uploadedHistory');
@@ -118,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
       formData.append('file', fileObj);
       formData.append('name', customName);
 
-      return fetch('http://localhost:5001/upload', {
+      return fetch(`${CONFIG.api.baseUrl}/upload`, {
         method: 'POST',
         body: formData,
       }).then(async res => {
@@ -205,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
     let uploadedNames = [];
     try {
-      const res = await fetch('http://localhost:5001/upload/history');
+      const res = await fetch(`${CONFIG.api.baseUrl}/upload/history`);
       const history = await res.json();
       uploadedNames = history.map(item => item.file_name); 
     } catch (err) {
@@ -308,7 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatInput             = document.querySelector('.chat-input');
   const chatSendBtn           = document.querySelector('.chat-send-btn');
 
-  const API_BASE = 'http://localhost:5001';
+  const API_BASE = CONFIG.api.baseUrl;
 
   // === Helpers ===
   function scrollToBottom() {
@@ -636,7 +652,7 @@ document.addEventListener("DOMContentLoaded", () => {
     isHeroAsking = true;
     if (!currentConversationId) {
       let previewTitle = q.length > 30 ? q.slice(0, 30) + '...' : q;
-      const res = await fetch(`${API_BASE}/conversation`, {
+      const res = await fetch(`${CONFIG.api.baseUrl}/conversation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: previewTitle })
@@ -645,7 +661,7 @@ document.addEventListener("DOMContentLoaded", () => {
       currentConversationId = id;
       thinkingStatusMap[currentConversationId] = thinkingNewDefault;
       updateThinkingUI(thinkingNewDefault);
-      await fetch(`${API_BASE}/conversations/reorder`, {
+      await fetch(`${CONFIG.api.baseUrl}/conversations/reorder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id })
