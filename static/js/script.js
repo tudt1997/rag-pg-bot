@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // API configuration
     api: {
       protocol: 'http',
-      host: window.location.hostname || 'localhost', // Use current hostname or default to localhost
+      host: '104.43.56.154', // Use current hostname or default to localhost
       port: '5001',
       get baseUrl() {
         return `${this.protocol}://${this.host}:${this.port}`;

@@ -9,7 +9,7 @@ docker run --rm --name elasticsearch \
   -e "http.cors.allow-origin=\"*\"" \
   -e http.cors.allow-headers="X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization" \
   -e http.cors.allow-credentials=true \
-  -e network.publish_host=localhost \
+  -e network.publish_host=0.0.0.0 \
   -e xpack.security.enabled=false \
   -v ./data:/usr/share/elasticsearch/data \
   docker.elastic.co/elasticsearch/elasticsearch:8.15.1
@@ -23,5 +23,5 @@ docker run -d \
 
 docker exec -it ollama ollama pull qwen3:4b
 
-export ELASTIC_HOST=localhost
+export ELASTIC_HOST=104.43.56.154
 export ELASTIC_PORT=9200

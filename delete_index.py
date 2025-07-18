@@ -4,7 +4,7 @@ from elasticsearch import Elasticsearch
 import os
 
 # Connect to Elasticsearch
-ELASTIC_HOST = os.getenv("ELASTIC_HOST", "localhost")
+ELASTIC_HOST = os.getenv("ELASTIC_HOST", "104.43.56.154")
 ELASTIC_PORT = os.getenv("ELASTIC_PORT", "9200")
 es = Elasticsearch(f"http://{ELASTIC_HOST}:{ELASTIC_PORT}")
 
