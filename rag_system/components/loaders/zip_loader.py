@@ -33,9 +33,20 @@ class ZipMarkdownLoader(DataLoaderBase):
                         rel_path = os.path.relpath(file_path, temp_dir)
                         folder_name = os.path.dirname(rel_path)
                         
-                        # Read the markdown file
-                        with open(file_path, 'r', encoding='utf-8') as f:
-                            content = f.read()
+                        # Read the markdown file with error handling
+                        try:
+                            # First try UTF-8
+                            with open(file_path, 'r', encoding='utf-8') as f:
+                                content = f.read()
+                        except UnicodeDecodeError:
+                            try:
+                                # If UTF-8 fails, try with Latin-1 (which can read any byte sequence)
+                                with open(file_path, 'r', encoding='latin-1') as f:
+                                    content = f.read()
+                            except Exception as e:
+                                # If all fails, skip this file and log the error
+                                print(f"Error reading file {file_path}: {e}")
+                                continue
                         
                         # Create a DataChunk for this markdown file
                         chunk = DataChunk(
