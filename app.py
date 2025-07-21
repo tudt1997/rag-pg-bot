@@ -172,16 +172,18 @@ def upload_file():
         # Handle zip file with markdown content
         from rag_system.components.loaders.zip_loader import ZipMarkdownLoader
         loader = ZipMarkdownLoader()
-        data_chunks = loader.load(file_path)
+        chunks_generator = loader.load_one_by_one(file_path)
+        embedder.process_chunks_one_by_one(chunks_generator)
+    
     else:
         # Handle PDF files (existing functionality)
         from rag_system.components.loaders.local_loader import LocalOCRPDFLoader
         loader = LocalOCRPDFLoader()
         data_chunks = loader.load(file_path)
 
-    # Chunk and embed the data
-    chunked_data = chunker.chunk(data_chunks)
-    embedder.embed_and_load(chunked_data)
+        # Chunk and embed the data
+        chunked_data = chunker.chunk(data_chunks)
+        embedder.embed_and_load(chunked_data)
 
     return jsonify({'message': f'Successfully uploaded and embedded file: {original_filename}'})
 

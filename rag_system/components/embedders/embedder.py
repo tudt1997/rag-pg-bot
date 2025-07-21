@@ -1,5 +1,5 @@
 from .embedder_base import EmbedderBase
-from typing import List
+from typing import List, Generator
 from rag_system.core.data_chunk import DataChunk
 from rag_system.services.vector_store import VectorStore
 from rag_system.services.embedding import EmbeddingClient
@@ -61,3 +61,54 @@ class Embedder(EmbedderBase):
 
         except Exception as e:
             print(f"Error while embedding and uploading: {e}")
+    
+    def embed_and_load_one(self, chunk: DataChunk, chunk_index: int = 0) -> None:
+        """
+        Embed a single DataChunk object and load the result into Elasticsearch.
+
+        Args:
+            chunk (DataChunk): A DataChunk instance to embed and store.
+            chunk_index (int): Index for tracking purposes if chunk_id is not set.
+        """
+        try:
+            # Create the index if it does not exist
+            self.vector_store.create_index()
+
+            # Generate embedding for this chunk
+            print(f"Generating embedding for chunk from source: {chunk.source}")
+            embedding = self.embed(chunk.content)
+            print(f"Successfully generated embedding for chunk from source: {chunk.source}")
+
+            # Prepare document for upload
+            record = chunk.to_dictionary()
+            record["text"] = record.get("content", "")
+            record["embedding"] = embedding
+            record["chunk_id"] = record.get("chunk_id", f"chunk_{chunk_index}")
+
+            # Upload embedding to Elasticsearch
+            self.vector_store.upload_embeddings([record])
+            print(f"Successfully uploaded embedded data for chunk from source: {chunk.source}")
+
+        except Exception as e:
+            print(f"Error while embedding and uploading chunk from source {chunk.source}: {e}")
+    
+    def process_chunks_one_by_one(self, chunks_generator: Generator[DataChunk, None, None]) -> None:
+        """
+        Process and embed chunks one by one from a generator.
+
+        Args:
+            chunks_generator: A generator that yields DataChunk objects one at a time.
+        """
+        try:
+            # Create the index if it does not exist
+            self.vector_store.create_index()
+            
+            chunk_count = 0
+            for chunk in chunks_generator:
+                self.embed_and_load_one(chunk, chunk_count)
+                chunk_count += 1
+            
+            print(f"Successfully processed and embedded {chunk_count} chunks one by one.")
+            
+        except Exception as e:
+            print(f"Error while processing chunks one by one: {e}")
