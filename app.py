@@ -1,6 +1,8 @@
 import os
 import json
 import time
+import zipfile
+
 from datetime import datetime
 from flask import Flask, request, Response, stream_with_context, jsonify
 from rag_system.components.llm_response.generate_response import LLMResponseGenerator

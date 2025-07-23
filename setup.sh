@@ -23,5 +23,5 @@ docker run -d \
 
 docker exec -it ollama ollama pull qwen3:4b
 
-export ELASTIC_HOST=104.43.56.154
+export ELASTIC_HOST=localhost
 export ELASTIC_PORT=9200
