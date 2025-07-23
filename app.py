@@ -177,7 +177,7 @@ def upload_file():
 
         # First count the total files (optional)
         total_files = 0
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        with zipfile.ZipFile(file_path, 'r') as zip_ref:
             for file_info in zip_ref.infolist():
                 if file_info.filename.endswith('.md'):
                     total_files += 1
