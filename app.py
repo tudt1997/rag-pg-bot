@@ -172,8 +172,16 @@ def upload_file():
         # Handle zip file with markdown content
         from rag_system.components.loaders.zip_loader import ZipMarkdownLoader
         loader = ZipMarkdownLoader()
+
+        # First count the total files (optional)
+        total_files = 0
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            for file_info in zip_ref.infolist():
+                if file_info.filename.endswith('.md'):
+                    total_files += 1
+
         chunks_generator = loader.load_one_by_one(file_path)
-        embedder.process_chunks_one_by_one(chunks_generator)
+        embedder.process_chunks_one_by_one(chunks_generator, total_estimate=total_files)
     
     else:
         # Handle PDF files (existing functionality)

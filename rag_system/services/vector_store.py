@@ -8,7 +8,7 @@ class VectorStore:
     def __init__(self, index_name: str = "text_embeddings", dim: int = 768):
         self.index_name = index_name
         self.dim = dim
-        self.host = os.getenv("ELASTIC_HOST", "104.43.56.154")
+        self.host = os.getenv("ELASTIC_HOST", "localhost")
         self.port = os.getenv("ELASTIC_PORT", "9200")
         self.es = Elasticsearch(f"http://{self.host}:{self.port}")
         print(f"Connected to Elasticsearch at {self.host}:{self.port}")

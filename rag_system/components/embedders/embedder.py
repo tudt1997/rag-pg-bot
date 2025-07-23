@@ -92,23 +92,45 @@ class Embedder(EmbedderBase):
         except Exception as e:
             print(f"Error while embedding and uploading chunk from source {chunk.source}: {e}")
     
-    def process_chunks_one_by_one(self, chunks_generator: Generator[DataChunk, None, None]) -> None:
+    def process_chunks_one_by_one(self, chunks_generator: Generator[DataChunk, None, None], total_estimate: int = None) -> None:
         """
         Process and embed chunks one by one from a generator.
 
         Args:
             chunks_generator: A generator that yields DataChunk objects one at a time.
+            total_estimate: An optional estimate of the total number of chunks (if known).
         """
         try:
             # Create the index if it does not exist
             self.vector_store.create_index()
             
             chunk_count = 0
+            start_time = __import__('time').time()
+            
             for chunk in chunks_generator:
+                # Log progress information
+                if total_estimate:
+                    progress_percent = (chunk_count / total_estimate) * 100
+                    print(f"Processing chunk {chunk_count+1}/{total_estimate} ({progress_percent:.1f}%)")
+                else:
+                    print(f"Processing chunk #{chunk_count+1}")
+                
+                # Process the chunk
                 self.embed_and_load_one(chunk, chunk_count)
                 chunk_count += 1
+                
+                # Calculate and display rate information every 5 chunks
+                if chunk_count % 5 == 0:
+                    elapsed = __import__('time').time() - start_time
+                    rate = chunk_count / elapsed if elapsed > 0 else 0
+                    print(f"Progress: {chunk_count} chunks processed in {elapsed:.1f} seconds ({rate:.2f} chunks/sec)")
             
+            # Final statistics
+            total_time = __import__('time').time() - start_time
+            avg_time_per_chunk = total_time / chunk_count if chunk_count > 0 else 0
             print(f"Successfully processed and embedded {chunk_count} chunks one by one.")
+            print(f"Total processing time: {total_time:.2f} seconds")
+            print(f"Average time per chunk: {avg_time_per_chunk:.2f} seconds")
             
         except Exception as e:
             print(f"Error while processing chunks one by one: {e}")
