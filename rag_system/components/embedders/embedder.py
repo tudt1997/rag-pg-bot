@@ -14,7 +14,7 @@ class Embedder(EmbedderBase):
         self.index_name = index_name
         # Initialize Elasticsearch vector store with the appropriate dimensionality
         self.vector_store = VectorStore(
-            index_name=index_name,
+            collection_name=index_name,
             dim=self.embed_client.embedding_dimensions
         )
 

@@ -1,4 +1,4 @@
-elasticsearch
+# elasticsearch
 ollama
 numpy
 flask
@@ -9,3 +9,5 @@ pytesseract
 Pillow
 pdf2image
 sentence_transformers
+qdrant_client
+langchain-community

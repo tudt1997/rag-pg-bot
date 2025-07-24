@@ -1,61 +1,43 @@
 import os
-from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
+from qdrant_client import QdrantClient
+from qdrant_client.models import PointStruct, Distance, VectorParams
 from typing import List, Dict
 import ollama
 
 class VectorStore:
-    def __init__(self, index_name: str = "text_embeddings", dim: int = 768):
-        self.index_name = index_name
+    # TODO: parametrize host and port
+    def __init__(self, collection_name: str = "text_embeddings", dim: int = 768):
+        self.collection_name = collection_name
         self.dim = dim
-        self.host = os.getenv("ELASTIC_HOST", "localhost")
-        self.port = os.getenv("ELASTIC_PORT", "9200")
-        self.es = Elasticsearch(f"http://{self.host}:{self.port}")
-        print(f"Connected to Elasticsearch at {self.host}:{self.port}")
-    
+        self.host = os.getenv("QDRANT_HOST", "localhost")
+        self.port = int(os.getenv("QDRANT_PORT", "6333"))
+        self.client = QdrantClient(host=self.host, port=self.port)
+        print(f"Connected to Qdrant at {self.host}:{self.port}")
+
     def create_index(self, show_fields=False):
         """
-        Create an index with mappings suitable for vector search.
+        Create a collection with vector parameters suitable for vector search.
         """
-        if self.es.indices.exists(index=self.index_name):
-            print(f"Index '{self.index_name}' already exists.")
+        if self.client.collection_exists(self.collection_name):
+            print(f"Collection '{self.collection_name}' already exists.")
             return
 
-        mapping = {
-            "mappings": {
-                "properties": {
-                    "chunk_id": {"type": "keyword"},
-                    "text": {"type": "text"},
-                    "source": {"type": "keyword"},
-                    "page_number": {"type": "integer"},
-                    "offset": {"type": "integer"},
-                    "embedding": {
-                        "type": "dense_vector",
-                        "dims": self.dim,
-                        "index": True,
-                        "similarity": "cosine"
-                    }
-                }
-            }
-        }
-
-        self.es.indices.create(index=self.index_name, body=mapping)
-        print(f"✅ Index '{self.index_name}' has been created.")
+        self.client.create_collection(
+            collection_name=self.collection_name,
+            vectors_config=VectorParams(size=self.dim, distance=Distance.COSINE)
+        )
+        print(f"✅ Collection '{self.collection_name}' has been created.")
 
         if show_fields:
-            index_info = self.es.indices.get_mapping(index=self.index_name)
-            fields = index_info[self.index_name]['mappings']['properties']
-            print("Fields in the index:")
-            for field_name, field_info in fields.items():
-                print(f" - {field_name}: {field_info['type']}")
+            print("Qdrant collections store vectors and payloads (metadata).")
 
     def delete_index(self):
         """
-        Delete the index if it exists.
+        Delete the collection if it exists.
         """
-        if self.es.indices.exists(index=self.index_name):
-            self.es.indices.delete(index=self.index_name)
-            print(f"Index '{self.index_name}' has been deleted.")
+        if self.client.get_collection(self.collection_name, raise_error=False):
+            self.client.delete_collection(self.collection_name)
+            print(f"Collection '{self.collection_name}' has been deleted.")
 
     def upload_embeddings(self, data: List[Dict]):
         """
@@ -69,40 +51,38 @@ class VectorStore:
           "embedding": List[float]  # 768 dimensions
         }
         """
-        actions = [
-            {
-                "_index": self.index_name,
-                "_source": doc
-            }
+        points = [
+            PointStruct(
+                id=doc["chunk_id"],
+                vector=doc["embedding"],
+                payload={
+                    "text": doc["text"],
+                    "source": doc["source"],
+                    "page_number": doc["page_number"],
+                    "offset": doc["offset"]
+                }
+            )
             for doc in data
         ]
-        bulk(self.es, actions)
-        print(f"Uploaded {len(actions)} documents to index '{self.index_name}'")
+        self.client.upsert(collection_name=self.collection_name, points=points)
+        print(f"Uploaded {len(points)} documents to collection '{self.collection_name}'")
 
-    def semantic_search(self, question, k: int = 5) -> List[Dict]:
+    def semantic_search(self, query_vector, k: int = 5) -> List[Dict]:
         """
         Perform semantic vector search using cosine similarity.
         """
-        query = {
-            "size": k,
-            "query": {
-                "script_score": {
-                    "query": {"match_all": {}},
-                    "script": {
-                        "source": "cosineSimilarity(params.query_vector, 'embedding') + 1.0",
-                        "params": {"query_vector": question}
-                    }
-                }
-            }
-        }
-
-        response = self.es.search(index=self.index_name, body=query)
+        response = self.client.search(
+            collection_name=self.collection_name,
+            query_vector=query_vector,
+            limit=k
+        )
         return [
             {
-                "text": hit["_source"].get("text"),
-                "source": hit["_source"].get("source"),
-                "page_number": hit["_source"].get("page_number"),
-                "score": hit["_score"]
+                "text": hit.payload.get("text"),
+                "source": hit.payload.get("source"),
+                "page_number": hit.payload.get("page_number"),
+                "score": hit.score
             }
-            for hit in response["hits"]["hits"]
+            for hit in response
         ]
+ 
