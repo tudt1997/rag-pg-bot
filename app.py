@@ -182,8 +182,8 @@ def upload_file():
                 if file_info.filename.endswith('.md'):
                     total_files += 1
 
-        chunks_generator = loader.load_one_by_one(file_path)
-        embedder.process_chunks_one_by_one(chunks_generator, total_estimate=total_files)
+        chunks_generator = loader.get_generator(file_path)
+        embedder.process_chunks_in_batch(chunks_generator, total_estimate=total_files)
     
     else:
         # Handle PDF files (existing functionality)

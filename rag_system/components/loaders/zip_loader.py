@@ -62,7 +62,7 @@ class ZipMarkdownLoader(DataLoaderBase):
         
         return data_chunks
     
-    def load_one_by_one(self, zip_path: str) -> Generator[DataChunk, None, None]:
+    def get_generator(self, zip_path: str) -> Generator[DataChunk, None, None]:
         '''
         Load markdown files one by one from folders within a zip file and yield each DataChunk.
         This allows processing one file at a time.
@@ -96,6 +96,7 @@ class ZipMarkdownLoader(DataLoaderBase):
                                 content = f.read()
                         except UnicodeDecodeError:
                             try:
+                                print(f"Opening {file_path} with Latin-1 encoding")
                                 # If UTF-8 fails, try with Latin-1 (which can read any byte sequence)
                                 with open(file_path, 'r', encoding='latin-1') as f:
                                     content = f.read()
