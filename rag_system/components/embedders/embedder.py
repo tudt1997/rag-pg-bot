@@ -17,7 +17,8 @@ class Embedder(EmbedderBase):
         self.index_name = index_name
         # Initialize Elasticsearch vector store with the appropriate dimensionality
         self.vector_store = VectorStore(
-            index_name=index_name, dim=self.embed_client.embedding_dimensions
+            collection_name=index_name,
+            dim=self.embed_client.embedding_dimensions
         )
 
     def embed(self, text: str) -> List[float]:

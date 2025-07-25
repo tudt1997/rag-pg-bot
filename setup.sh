@@ -25,3 +25,6 @@ docker exec -it ollama ollama pull qwen3:4b
 
 export ELASTIC_HOST=localhost
 export ELASTIC_PORT=9200
+
+export QDRANT_HOST=localhost
+export QDRANT_PORT=6333

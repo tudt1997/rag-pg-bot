@@ -1,0 +1,55 @@
+services:
+  qdrant:
+    image: qdrant/qdrant
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant_data
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - llm_models:/models
+      - llm_ollama_data:/root/.ollama
+    # command: "ollama serve && ollama pull qwen3:4b"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            capabilities: ["gpu"]
+            count: all
+  app:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: app_llm:latest
+    container_name: rag-pg-bot
+    volumes:
+      - "app_sessions:/app/sessions"
+    ports:
+      - "5001:5001"
+      - "3000:3000"
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - OLLAMA_HOST=ollama
+      - OLLAMA_PORT=11434
+volumes:
+  qdrant_data:
+    name: qdrant_data
+  ollama_data:
+    name: ollama_data
+  llm_models:
+    name: llm_models
+  llm_ollama_data:
+    name: llm_ollama_data
+  app_sessions:
+    name: app_sessions
